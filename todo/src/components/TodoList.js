@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addTodo, toggleTodo } from '../actions';
+import { addTodo, toggleTodo, removeTodos, getTodos } from '../actions';
+
+// const save = (todos) => {
+// 	const stringTodos = JSON.stringify(todos);
+// 	localStorage.setItem("todos", stringTodos);
+// }
 
 class TodoList extends Component {
 	constructor() {
@@ -8,6 +13,19 @@ class TodoList extends Component {
 		this.state = {
 			text: ''
 		};
+	}
+
+	componentDidMount() {
+		const myTodos = JSON.parse(localStorage.getItem("todos"));
+		if (myTodos !== null) {
+			this.props.getTodos(myTodos);
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.todos !== this.props.todos) {
+			localStorage.setItem('todos', JSON.stringify(nextProps.todos));
+		}
 	}
 
 	handleTodoComplete = (todoId) => {
@@ -31,6 +49,10 @@ class TodoList extends Component {
 		});
 	};
 
+	removeTodos = () => {
+    this.props.removeTodos();
+  };
+
 	render() {
 		const { todos } = this.props;
 		return (
@@ -53,12 +75,14 @@ class TodoList extends Component {
 								style={
 									todo.completed ? { color: '#d3d3d3', textDecoration: 'line-through'} : null
 								}
-								key={todo.id}>
+								key={todo.id}
+								>
 								{todo.text}
 							</li>
 						);
 					})}
 				</ul>
+				<button onClick={() => this.removeTodos()}>Remove Completed</button>
 			</div>
 		);
 	}
@@ -70,4 +94,4 @@ const mapStateToProps = state => {
 	}
 }
 
-export default connect(mapStateToProps, { addTodo, toggleTodo})(TodoList);
+export default connect(mapStateToProps, { addTodo, toggleTodo, getTodos, removeTodos})(TodoList);
